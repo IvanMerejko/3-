@@ -36,48 +36,9 @@ class RasterizationAlgorithms:
             y += dy
             points.append([round(x), round(y)])
         self.draw(points)
-        t2 = time.clock()
 
-    def assymetric_DDA(self, x1, y1, x2, y2):
-        dx = x2 - x1
-        dy = y2 - y1
-        points = [(x1, y1)]
-        while (x1 < x2):
-            x1 = x1 + 1.0
-            y1 = y1 + dy / dx
-            points.append([x1, y1])
-        self.draw(points)
-
-        dx = x2 - x1
-        dy = y2 - y1
-        x, y = x1, y1
-        if dx and dy:
-            if abs(dx) <= abs(dy):
-                dy /= dx
-                dx = 1.0
-            else:
-                dx /= dy
-                dy = 1.0
-
-            while abs(x) <= abs(x2):
-                x += dx
-                y += dy
-                points.append([round(x), round(y)])
-
-        elif dx:
-            while abs(x) <= abs(x2):
-                x += 1
-                points.append([round(x), round(y1)])
-
-        else:
-            while abs(y) < abs(y2):
-                y += 1
-                points.append([round(x1), round(y)])
-
-        self.draw(points)
 
     def Bresenham(self, x1, y1, x2, y2):
-        t1 = time.clock()
         # Setup initial conditions
         dx = x2 - x1
         dy = y2 - y1
@@ -111,12 +72,9 @@ class RasterizationAlgorithms:
                 y += ystep
                 error += dx
         self.draw(points)
-        t2 = time.clock()
-        print("Bresenham:")
-        print(t2 - t1)
+
 
     def circle_Bresenham(self, xc, yc, radius):
-        t1 = time.clock()
         x = 0
         y = radius
         delta = 1 - 2 * radius
@@ -141,40 +99,8 @@ class RasterizationAlgorithms:
             delta += 2 * (x - y)
             y -= 1
         self.draw(points)
-        t2 = time.clock()
-        print("Circle Bresenham:")
-        print(t2 - t1)
 
-    def elipse_Bresenham(self, xc, yc, radius, b):
-        t1 = time.clock()
-        x = 0
-        y = radius
-        delta = 1 - 2 * radius
-        error = 0
-        points = []
-        if radius > b:
-            while (y >= 0):
-                points.append((xc + x, yc + y))
-                points.append((xc + x, yc - y))
-                points.append((xc - x, yc + y))
-                points.append((xc - x, yc - y))
-                error = 2 * (delta + y) - 1
-                if (delta < 0) and (error <= 0):
-                    x += 1
-                    delta += 2 * x + 1
-                    continue
-                error = 2 * (delta - x) - 1
-                if delta > 0 and error > 0:
-                    y -= b / radius
-                    delta += 1 - 2 * y
-                    continue
-                x += 1
-                delta += 2 * (x - y)
-                y -= b / radius
-        self.draw(points)
-        t2 = time.clock()
-        print("Elipse Bresenham:")
-        print(t2 - t1)
+
 
     def Wu(self, x1, y1, x2, y2):
 
@@ -231,17 +157,15 @@ class RasterizationAlgorithms:
         self.canvas.delete("surname")
 
     def callback(self, func_name):
-        if func_name == "elipse_Bresenham":
-            return lambda func_name=func_name: getattr(self, func_name)(85, 60, 15, 5)
         if func_name != "circle_Bresenham":
             def func():
+                self.clean()
                 for letter, lines in self.surname.items():
                     for line in lines:
                         if letter == "o":
                             getattr(self, "circle_Bresenham")(line[0][0], line[0][1], line[1][0])
                         else:
                             getattr(self, func_name)(line[0][0], line[0][1], line[1][0], line[1][1])
-
             return func
         return lambda func_name=func_name: getattr(self, func_name)(85, 60, 15)
 
@@ -255,12 +179,10 @@ class RasterizationAlgorithms:
         frame = Frame(window, bg="light blue")
         frame.pack()
         create_button(frame, "DDA", self.callback("DDA"), 1)
-        create_button(frame, "Assymetric DDA", self.callback("assymetric_DDA"), 2)
-        create_button(frame, "Bresenham", self.callback("Bresenham"), 3)
-        create_button(frame, "Circle Bresenham", self.callback("circle_Bresenham"), 4)
-        create_button(frame, "Elipse Bresenham", self.callback("elipse_Bresenham"), 5)
-        create_button(frame, "Wu", self.callback("Wu"), 6)
-        create_button(frame, "Clear", self.clean, 7)
+        create_button(frame, "Bresenham", self.callback("Bresenham"), 2)
+        create_button(frame, "Circle Bresenham", self.callback("circle_Bresenham"), 3)
+        create_button(frame, "Wu", self.callback("Wu"), 4)
+        create_button(frame, "Clear", self.clean, 5)
         window.mainloop()
 
 
