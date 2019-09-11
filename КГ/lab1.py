@@ -1,15 +1,19 @@
+
+
 # Import all definitions from tkinter
 
 from tkinter import *
-import time
+import datetime
 
 PIXEL_SIZE = 5
 HEIGHT = 500
 WIDTH = 800
 
-def create_button(frame , name , callback, column_number):
+
+def create_button(frame, name, callback, column_number):
     button = Button(frame, text=name, command=callback)
     button.grid(row=1, column=column_number)
+
 
 class RasterizationAlgorithms:
     surname = {
@@ -27,7 +31,7 @@ class RasterizationAlgorithms:
         dx, dy = abs(x2 - x1), abs(y2 - y1)
 
         steps = dx if dx >= dy else dy
-        dx, dy= (x2 - x1) / steps, (y2 - y1) / steps
+        dx, dy = (x2 - x1) / steps, (y2 - y1) / steps
 
         x, y = x1, y1
         points = [[x, y], [x2, y2]]
@@ -35,8 +39,8 @@ class RasterizationAlgorithms:
             x += dx
             y += dy
             points.append([round(x), round(y)])
-        self.draw(points)
 
+        self.draw(points)
 
     def Bresenham(self, x1, y1, x2, y2):
         # Setup initial conditions
@@ -73,7 +77,6 @@ class RasterizationAlgorithms:
                 error += dx
         self.draw(points)
 
-
     def circle_Bresenham(self, xc, yc, radius):
         x = 0
         y = radius
@@ -100,10 +103,7 @@ class RasterizationAlgorithms:
             y -= 1
         self.draw(points)
 
-
-
     def Wu(self, x1, y1, x2, y2):
-
         def _fpart(x):
             return x - int(x)
 
@@ -145,6 +145,7 @@ class RasterizationAlgorithms:
                 points.append([x, y])
                 points.append([x, y + 1])
                 intery += grad
+
         self.draw(points)
 
     def draw(self, coords):
@@ -160,12 +161,15 @@ class RasterizationAlgorithms:
         if func_name != "circle_Bresenham":
             def func():
                 self.clean()
+                start = datetime.datetime.now()
                 for letter, lines in self.surname.items():
                     for line in lines:
                         if letter == "o":
                             getattr(self, "circle_Bresenham")(line[0][0], line[0][1], line[1][0])
                         else:
                             getattr(self, func_name)(line[0][0], line[0][1], line[1][0], line[1][1])
+                end = datetime.datetime.now()
+                print("{0}: {1}".format(func_name, end - start))
             return func
         return lambda func_name=func_name: getattr(self, func_name)(85, 60, 15)
 
@@ -180,9 +184,8 @@ class RasterizationAlgorithms:
         frame.pack()
         create_button(frame, "DDA", self.callback("DDA"), 1)
         create_button(frame, "Bresenham", self.callback("Bresenham"), 2)
-        create_button(frame, "Circle Bresenham", self.callback("circle_Bresenham"), 3)
-        create_button(frame, "Wu", self.callback("Wu"), 4)
-        create_button(frame, "Clear", self.clean, 5)
+        create_button(frame, "Wu", self.callback("Wu"), 3)
+        create_button(frame, "Clear", self.clean, 4)
         window.mainloop()
 
 
