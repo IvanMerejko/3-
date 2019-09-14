@@ -10,7 +10,7 @@ def create_button(frame, name, callback, column_number):
 
 
 class RasterizationAlgorithms:
-    start_points = [[30, 70], [300, -70], [270, 180], [200, 170], [250, 100], [300, 80], [380, 80]]
+    start_points = [[130, 170], [400, -70], [370, 280], [300, 370], [350, 200], [400, 180], [480, 180]]
     points = []
     scale = 1
     shiftY = 0
@@ -26,6 +26,7 @@ class RasterizationAlgorithms:
     def set_bezier_points(self, arr):
         t = 0
         step = 0.001
+        self.points = []
         while t < step + 1:
             ind = len(self.points)
             self.points.append([0, 0])
@@ -39,13 +40,44 @@ class RasterizationAlgorithms:
         self.canvas.delete("bazier_line")
 
     def draw_bazier_line(self):
-        self.set_bezier_points(self.start_points)
+        self.clean()
         for point in self.points:
             self.canvas.create_rectangle( (point[0] + self.shiftX) * self.scale,
                                           (point[1] + self.shiftY) * self.scale,
                                           (point[0] + self.shiftY) * self.scale,
                                           (point[1] + self.shiftY) * self.scale,
                                           tag="bazier_line")
+
+    def draw_simple_line(self):
+        self.scale = 1
+        self.shiftY = 0
+        self.shiftX = 0
+
+        self.set_bezier_points(self.start_points)
+        self.draw_bazier_line()
+
+    def alienate(self):
+        if self.scale > 0.1:
+            self.scale -= 0.1
+        self.draw_bazier_line()
+
+    def bring_closer(self):
+        if self.scale < 2:
+            self.scale += 0.1
+        self.set_bezier_points(self.start_points)
+        self.draw_bazier_line()
+
+    def mirror_by_x(self):
+        self.set_bezier_points(self.start_points)
+        for point in self.points:
+            point[0] = HEIGHT - point[0]
+        self.draw_bazier_line()
+
+    def mirror_by_y(self):
+        self.set_bezier_points(self.start_points)
+        for point in self.points:
+            point[1] = WIDTH - point[1]
+        self.draw_bazier_line()
 
     def __init__(self):
         window = Tk()
@@ -57,7 +89,11 @@ class RasterizationAlgorithms:
         frame = Frame(window, bg="light blue")
         frame.pack()
 
-        self.draw_bazier_line()
+        create_button(frame, "simple_line", self.draw_simple_line, 1)
+        create_button(frame, "alienate", self.alienate, 2)
+        create_button(frame, "bring_closer", self.bring_closer, 3)
+        create_button(frame, "mirror_by_x", self.mirror_by_x, 4)
+        create_button(frame, "mirror_by_y", self.mirror_by_y, 5)
 
         window.mainloop()
 
