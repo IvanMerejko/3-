@@ -14,7 +14,6 @@ class Task
    SLAR m_system;
 public:
    explicit Task(const SLAR& system);
-   void solveBySingleDivisionScheme() const;
    void solveByGaussJordanExclusion() const;
    void solveBySimpleIteration() const;
    void printSlar() const;
@@ -29,13 +28,14 @@ int main()
 {
    SLAR slar =
    {
-               43, -5, 32, 0, -15 ,
-               12, 32, 18, 3, 114 ,
-               20, 1, 27, 5, 3 ,
-               -10, -27, -5, 50, -81
+      10,	2,	0,	19,	44,
+      2,	24,	7,	14,	114,
+      10,	14,	29,	4,	108,
+      20,	13,	3,	8,	61
+
    };
-   Task task(slar);;
-   task.solveBySingleDivisionScheme();
+   Task task(slar);
+   task.printSlar();
    task.solveByGaussJordanExclusion();
    task.solveBySimpleIteration();
 
@@ -48,61 +48,51 @@ Task::Task(const SLAR & system)
 }
 void Task::solveBySimpleIteration() const
 {
-   std::cout << "\nSolveByZedelIteration\n";
+   std::cout << "\nSolveBySimpleIteration\n";
    auto matrix = m_system;
-   solutionType  previousSolution;
+   solutionType  solution{};
 
-   while(true)
+   for (int i = 0; i < LineNumber; ++i)
    {
-      solutionType currentSolution;
-      for(int i = 0; i < LineNumber; ++i)
+      for (int k = 0; k < LineNumber; ++k)
       {
-         currentSolution[i] = matrix[i][ColumnNumber - 1];
-
-         for(int j = 0 ; j < LineNumber ; ++j)
+         if (abs(matrix[i][i]) < abs(matrix[k][i]))
          {
-            if(i != j)
+            for (int j = 0; j < ColumnNumber; ++j)
             {
-               currentSolution[i] -= matrix[i][j] * previousSolution[j];
+               std::swap(matrix[i][j], matrix[k][j]);
             }
          }
-         currentSolution[i] /= matrix[i][i];
       }
-      long double error = 0;
+   }
+   int readySolutions{ 0 };
+   int y{ 0 };
+   do
+   {
       for (int i = 0; i < LineNumber; ++i)
       {
-         error += abs(currentSolution[i] - previousSolution[i]);
+         y = solution[i];
+         solution[i] = matrix[i][LineNumber];
+         for (int j = 0; j < LineNumber; ++j)
+         {
+            if (i != j)
+            {
+               solution[i] -= matrix[i][j] * solution[j];
+            }
+         }
+         solution[i] /= matrix[i][i];
+
+         if (abs(solution[i] - y) <= 1e-8)
+         {
+            ++readySolutions;
+         }
       }
-      if (error < 1e-8)
-      {
-         break;
-      }
-      previousSolution = currentSolution;
-   }
+   } while (readySolutions < LineNumber);
 
-   std::copy(previousSolution.begin(), previousSolution.end(), std::ostream_iterator<double>(std::cout, " "));
-
-}
-
-void Task::solveBySingleDivisionScheme() const
-{
-   std::cout << "\nSolveBySingleDivisionScheme\n";
-   auto matrix = m_system;
-   simplifyMatrixByLine(matrix, 0);
-   simplifyMatrixByLine(matrix, 1);
-   simplifyMatrixByLine(matrix, 2);
-   solutionType solution;
-   solution[0] = matrix[LineNumber - 1][ColumnNumber - 1] / matrix[LineNumber - 1][ColumnNumber - 2]; //< x4
-   solution[1] = matrix[LineNumber - 2][ColumnNumber - 1] - matrix[LineNumber - 2][ColumnNumber - 2] * solution[0];//< x3
-   solution[2] = matrix[LineNumber - 3][ColumnNumber - 1] - matrix[LineNumber - 3][ColumnNumber - 2] * solution[0]//< x2
-                                             - matrix[LineNumber - 3][ColumnNumber - 3] * solution[1];
-   solution[3] = matrix[LineNumber - 4][ColumnNumber - 1] - matrix[LineNumber - 4][ColumnNumber - 2] * solution[0] //< x1
-                                             - matrix[LineNumber - 4][ColumnNumber - 3] * solution[1]
-                                             - matrix[LineNumber - 4][ColumnNumber - 4] * solution[2];
-   std::reverse(solution.begin(), solution.end());
 
    std::cout << "Result: \n";
    std::copy(solution.begin(), solution.end(), std::ostream_iterator<double>(std::cout, " "));
+
 }
 
 void Task::solveByGaussJordanExclusion() const
@@ -166,4 +156,3 @@ void Task::printSlar() const
       std::cout << std::endl;
    }
 }
-
