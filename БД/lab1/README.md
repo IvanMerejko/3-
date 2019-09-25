@@ -12,14 +12,17 @@ Database lab1, FAM
 <li>Перетворити розроблену модель у схему бази даних (таблиці) PostgreSQL та внести декілька рядків даних у кожну з таблиць засобами pgAdmin 4.</li>
   </ul>
 
-<img src=images/er_scheme.png/>
+
+<h4 align="center">Концептуальна модель учбової предметної області "Магазин"</h4>
+<p align="center">
+<img src=images/er_sсheme.png/>
 </p>
-<h4 align="center">Опис структури БД “Бібліотека”</h4>
+<h4 align="center">Опис структури БД “Магазин”</h4>
 
 <p align="center">
 <img src=images/info.png/>
 </p>
-<h4 align="center">Структура БД “Бібліотека”</h4>
+<h4 align="center">Структура БД “Магазин”</h4>
 <p align="center">
 <img src=images/tables.png/>
 </p>
