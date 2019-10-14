@@ -17,9 +17,8 @@ window.minsize(width=100, height=100)
 window.geometry('600x500')
 window.title("lab2")
 window.grid_columnconfigure(4, minsize=100)
-frame = Frame(window, width=WIDTH, height=HEIGHT)
-frame.pack()
-
+text_label = Label(width=100, height=5, bg="light blue")
+text_label.grid(row=10, column=1, columnspan=9, rowspan=5)
 connection = psycopg2.connect(user = "postgres",
                               password = "bdfy45231",
                               port = "1111",
@@ -30,12 +29,14 @@ cursor = connection.cursor()
 def select():
     print(current_table)
     cursor.execute("SELECT * FROM \"{0}\";".format(current_table))
-    record = cursor.fetchall()
-    text_label = Label(frame, width=WIDTH, height=HEIGHT - 400, bg="light blue")
-    text_label.grid(row=10, column=1, ipadx=10, ipady=6, padx=10, pady=10)
-    print(record)
+    records = cursor.fetchall()
+    text_label['text'] = records
+    # for record in records:
+    #     text_label['text'] += record
 
 
-def create_button(frame, name, callback, column_number, row_number=1):
-    button = Button(frame, text=name, command=callback)
-    button.grid(row=row_number, column=column_number, ipadx=10, ipady=6, padx=10, pady=10)
+
+def create_button(name, callback, column_number, row_number=1):
+    print(name, row_number, column_number)
+    button = Button(text=name, command=callback)
+    button.grid(row=row_number, column=column_number, padx=5, pady=3)
