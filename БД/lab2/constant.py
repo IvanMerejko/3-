@@ -28,6 +28,8 @@ insert_queries = {3: 'INSERT INTO \"{0}\"VALUES ({1},{2},{3})',
                   5: 'INSERT INTO \"{0}\"VALUES ({1},{2},{3},{4},{5})'}
 
 delete_query = 'Delete From \"{table}\" Where {field} = {value}'
+select_query = 'Select {fields} from \"{table}\"'
+
 delete_position_for_remove = [(4, 1), (4, 2), (5, 1)]
 current_table = ''
 
@@ -64,17 +66,28 @@ connection = psycopg2.connect(user = "postgres",
 cursor = connection.cursor()
 
 
-def select():
-    print(current_table)
-    cursor.execute("SELECT * FROM \"{0}\";".format(current_table))
-    connection.commit()
-    result = None
-    text_label['text'] = ''
-    for record in cursor.fetchall():
-        text_label['text'] += str(record) + '\n'
+def create_filters_in_query(query, fields):
+    filters = []
+    for field, field_name in fields:
+        if len(str(field)) > 0:
+            filters.append(' {0} = {1} '.format(field_name, field))
+    filters_count = len(filters)
+    if filters_count > 0:
+        query += ' WHERE'
+        query += filters[0]
+        for i in range(1, filters_count):
+            if len(filters[i]) > 0:
+                query += ' AND '
+                query += filters[i]
+    return query
 
 
-
+def select_callback(fields_value):
+    query = select_query
+    fields = '*'
+    query = create_filters_in_query(query, fields_value)
+    status, result = execute_query(query.format(fields=fields, table=current_table))
+    text_label['text'] = str(status) + '\n' + str(result)
 
 
 def remove_element(row, column):
@@ -96,9 +109,12 @@ def change_color(pos):
 def execute_query(query):
     try:
         cursor.execute(query)
+        result = ''
+        for record in cursor.fetchall():
+            result += str(record) + '\n'
         connection.commit()
-        return 'Ok'
+        return {'Ok', result}
     except Exception as err:
         connection.commit()
-        return err
+        return {err, ''}
 
