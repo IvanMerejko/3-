@@ -23,13 +23,11 @@ remove_dict_for_first_task = {Assortment_str: [(4, 1), (5, 1), (6, 1), (4, 2), (
                               Shop_str: [(4, 1), (5, 1), (6, 1), (4, 2), (5, 2), (6, 2), (7, 1)],
                               Worker_str: [(4, 1), (5, 1), (6, 1), (7, 1), (8, 1), (4, 2), (5, 2), (6, 2), (7, 2), (8, 2), (9, 1)]}
 
-insert_queries = {3: 'INSERT INTO \"{0}\"VALUES ({1},{2},{3})',
-                  4: 'INSERT INTO \"{0}\"VALUES ({1},{2},{3},{4})',
-                  5: 'INSERT INTO \"{0}\"VALUES ({1},{2},{3},{4},{5})'}
+insert_query = 'INSERT INTO \"{table}\"VALUES {values}'
 
 delete_query = 'Delete From \"{table}\" Where {field} = {value}'
 select_query = 'Select {fields} from \"{table}\"'
-
+update_query = 'Update \"{table}\" Set {fields} Where {primary_key}'
 delete_position_for_remove = [(4, 1), (4, 2), (5, 1)]
 current_table = ''
 
@@ -89,6 +87,24 @@ def select_callback(fields_value):
     status, result = execute_query(query.format(fields=fields, table=current_table))
     text_label['text'] = str(status) + '\n' + str(result)
 
+def update_callback(primary_key, new_fields):
+    primary_key_value, primary_key_name = primary_key
+    if len(str(primary_key_value)) == 0:
+        text_label["text"] = 'Please set value to primary key ({name})'.format(name=primary_key_name)
+        return
+    primary_key_part = "{name} = {value}".format(name=primary_key_name, value=primary_key_value)
+    fields_part = ''
+    for field_value, field_name in new_fields:
+        if len(str(field_value)) != 0:
+            fields_part += " {name} = {value} ".format(name=field_name, value=field_value)
+    if len(fields_part) == 0:
+        text_label["text"] = 'Please set new value minimum for one field'.format(name=primary_key_name)
+        return
+    status, result = execute_query(update_query.format(table=current_table,
+                                                       fields=fields_part,
+                                                       primary_key=primary_key_part), False)
+    text_label['text'] = str(status) + '\n' + str(result)
+
 
 def remove_element(row, column):
     for element in window.grid_slaves():
@@ -106,15 +122,17 @@ def change_color(pos):
             element.config(bg="white")
 
 
-def execute_query(query):
+def execute_query(query, is_need_to_fetch=True):
     try:
         cursor.execute(query)
+        if not is_need_to_fetch:
+            return 'Ok', ''
         result = ''
         for record in cursor.fetchall():
             result += str(record) + '\n'
         connection.commit()
-        return {'Ok', result}
+        return 'Ok', result
     except Exception as err:
         connection.commit()
-        return {err, ''}
+        return err, ''
 

@@ -76,8 +76,8 @@ def create_delete_menu():
     value = StringVar()
     def delete_statement():
         status, result = con.execute_query(con.delete_query.format(table=con.current_table,
-                                                           field=current_field_name,
-                                                            value=value.get()))
+                                                                   field=current_field_name,
+                                                                   value=value.get()))
         con.text_label['text'] = status
     con.create_label(current_field_name, label_height, 2, 1, 4, 1, 1, "white")
     con.create_entry(value, 2, 4)
@@ -97,10 +97,12 @@ def create_assortment_insert():
     shop_id = StringVar()
     create_assortment_menu(assortment_id, commodity_id, shop_id)
     def insert_callback():
-        status, result = con.execute_query(con.insert_queries[3].format(con.current_table, assortment_id.get(),
-                                                                commodity_id.get(), shop_id.get()))
+        status, result = con.execute_query(con.insert_query.format(table=con.current_table,
+                                                                   values="({0},{1},{2})".format(assortment_id.get(),
+                                                                                                 commodity_id.get(),
+                                                                                                 shop_id.get())))
         con.text_label['text'] = status
-    con.create_button('Ok', insert_callback, 1, 7)
+    con.create_button('insert', insert_callback, 1, 7)
 def create_assortment_select():
     assortment_id = StringVar()
     commodity_id = StringVar()
@@ -113,7 +115,15 @@ def create_assortment_select():
 
     con.create_button('select', callback, 1, 7)
 def create_assortment_update():
-    print()
+    assortment_id = StringVar()
+    commodity_id = StringVar()
+    shop_id = StringVar()
+    create_assortment_menu(assortment_id, commodity_id, shop_id)
+    def callback():
+        con.update_callback((assortment_id.get(), "assortment_id"), {(commodity_id.get(), "commodity_id"),
+                                                                     (shop_id.get(), "shop_id")})
+
+    con.create_button('update', callback, 1, 7)
 
 def create_commodity_insert():
     name = StringVar()
@@ -121,10 +131,13 @@ def create_commodity_insert():
     price = StringVar()
     create_commodity_menu(commodity_id, name, price)
     def insert_callback():
-        status, result = con.execute_query(con.insert_queries[3].format(con.current_table, commodity_id.get(),
-                                                                name.get(), price.get()))
+        status, result = con.execute_query(con.insert_query.format(table=con.current_table,
+                                                                   values="({commodity_id},{name},{price})".format(
+                                                                       commodity_id=commodity_id.get(),
+                                                                       name=name.get(),
+                                                                       price=price.get())))
         con.text_label['text'] = status
-    con.create_button('Ok', insert_callback, 1, 7)
+    con.create_button('insert', insert_callback, 1, 7)
 def create_commodity_select():
     name = StringVar()
     commodity_id = StringVar()
@@ -136,6 +149,16 @@ def create_commodity_select():
                              (price.get(), 'price')})
 
     con.create_button('select', callback, 1, 7)
+def create_commodity_update():
+    name = StringVar()
+    commodity_id = StringVar()
+    price = StringVar()
+    create_commodity_menu(commodity_id, name, price)
+    def callback():
+        con.update_callback((commodity_id.get(), "commodity_id"), {(name.get(), "name"),
+                                                                    (price.get(), "price")})
+
+    con.create_button('update', callback, 1, 7)
 
 
 def create_customer_insert():
@@ -145,10 +168,13 @@ def create_customer_insert():
     worker_id = StringVar()
     create_customer_menu(customer_id, name, raiting, worker_id)
     def insert_callback():
-        status, result = con.execute_query(con.insert_queries[4].format(con.current_table, customer_id.get(),
-                                                                raiting.get(), worker_id.get(), name.get()))
+        status, result = con.execute_query(con.insert_query.format(table=con.current_table,
+                                                                   values="({0},{1},{2},{3})".format(customer_id.get(),
+                                                                                                     raiting.get(),
+                                                                                                     worker_id.get(),
+                                                                                                     name.get())))
         con.text_label['text'] = status
-    con.create_button('Ok', insert_callback, 1, 8)
+    con.create_button('insert', insert_callback, 1, 8)
 def create_customer_select():
     customer_id = StringVar()
     name = StringVar()
@@ -162,6 +188,19 @@ def create_customer_select():
                              (worker_id.get(), 'worker_id')})
 
     con.create_button('select', callback, 1, 8)
+def create_customer_update():
+    customer_id = StringVar()
+    name = StringVar()
+    raiting = StringVar()
+    worker_id = StringVar()
+    create_customer_menu(customer_id, name, raiting, worker_id)
+    def callback():
+        con.update_callback((customer_id.get(), "customer_id"), {(raiting.get(), "name"),
+                                                                 (raiting.get(), "raiting"),
+                                                                 (worker_id.get(), "worker_id")})
+
+
+    con.create_button('update', callback, 1, 8)
 
 
 def create_order_insert():
@@ -170,10 +209,12 @@ def create_order_insert():
     assortment_id = StringVar()
     create_order_menu(customer_id, order_id, assortment_id)
     def insert_callback():
-        status, result = con.execute_query(con.insert_queries[3].format(con.current_table, order_id.get(),
-                                                                        customer_id.get(), assortment_id.get()))
+        status, result = con.execute_query(con.insert_query.format(table=con.current_table,
+                                                                   values="({0},{1},{2})".format(order_id.get(),
+                                                                                                 customer_id.get(),
+                                                                                                 assortment_id.get())))
         con.text_label['text'] = status
-    con.create_button('Ok', insert_callback, 1, 7)
+    con.create_button('insert', insert_callback, 1, 7)
 def create_order_select():
     customer_id = StringVar()
     order_id = StringVar()
@@ -185,6 +226,17 @@ def create_order_select():
                              (assortment_id.get(), 'assortment_id')})
 
     con.create_button('select', callback, 1, 7)
+def create_order_update():
+    customer_id = StringVar()
+    order_id = StringVar()
+    assortment_id = StringVar()
+    create_order_menu(customer_id, order_id, assortment_id)
+    def callback():
+        con.update_callback((customer_id.get(), "customer_id"), {(order_id.get(), "order_id"),
+                                                                 (assortment_id.get(), "assortment_id")})
+
+    con.create_button('update', callback, 1, 7)
+
 
 
 def create_shop_insert():
@@ -193,10 +245,12 @@ def create_shop_insert():
     address = StringVar()
     create_shop_menu(shop_id, monthly_profit, address)
     def insert_callback():
-        status, result = con.execute_query(con.insert_queries[3].format(con.current_table, shop_id.get(),
-                                                                monthly_profit.get(), address.get()))
+        status, result = con.execute_query(con.insert_query.format(table=con.current_table,
+                                                                   values="({0},{1},{2})".format(shop_id.get(),
+                                                                                                 monthly_profit.get(),
+                                                                                                 address.get())))
         con.text_label['text'] = status
-    con.create_button('Ok', insert_callback, 1, 7)
+    con.create_button('insert', insert_callback, 1, 7)
 def create_shop_select():
     shop_id = StringVar()
     monthly_profit = StringVar()
@@ -208,6 +262,16 @@ def create_shop_select():
                              (address.get(), 'address')})
 
     con.create_button('select', callback, 1, 7)
+def create_shop_update():
+    shop_id = StringVar()
+    monthly_profit = StringVar()
+    address = StringVar()
+    create_shop_menu(shop_id, monthly_profit, address)
+    def callback():
+        con.update_callback((shop_id.get(), "shop_id"), {(monthly_profit.get(), "monthly_profit"),
+                                                              (address.get(), "address")})
+
+    con.create_button('update', callback, 1, 7)
 
 
 def create_worker_insert():
@@ -218,10 +282,15 @@ def create_worker_insert():
     position = StringVar()
     create_worker_menu(worker_id, shop_id, name, surname, position)
     def insert_callback():
-        status, result = con.execute_query(con.insert_queries[3].format(con.current_table, worker_id.get(), shop_id.get(),
-                                                                name.get(), surname.get(), position.get()))
+        status, result = con.execute_query(con.insert_query.format(table=con.current_table,
+                                                                   values="({0},{1},{2},{3},{4})".format(
+                                                                       worker_id.get(),
+                                                                       shop_id.get(),
+                                                                       name.get(),
+                                                                       surname.get(),
+                                                                       position.get())))
         con.text_label['text'] = status
-    con.create_button('Ok', insert_callback, 1, 9)
+    con.create_button('insert', insert_callback, 1, 9)
 def create_worker_select():
     worker_id = StringVar()
     shop_id = StringVar()
@@ -237,6 +306,22 @@ def create_worker_select():
                              (position.get(), 'position')})
 
     con.create_button('select', callback, 1, 9)
+def create_worker_update():
+    worker_id = StringVar()
+    shop_id = StringVar()
+    name = StringVar()
+    surname = StringVar()
+    position = StringVar()
+    create_worker_menu(worker_id, shop_id, name, surname, position)
+    def callback():
+        con.update_callback((worker_id.get(), "worker_id"), {(shop_id.get(), "shop_id"),
+                                                              (name.get(), "name"),
+                                                             (surname.get(), "surname"),
+                                                             (position.get(), "position")})
+
+    con.create_button('update', callback, 1, 9)
+
+
 
 insert_creators = {con.Assortment_str: create_assortment_insert,
                    con.Commodity_str: create_commodity_insert,
@@ -252,15 +337,34 @@ select_creators = {con.Assortment_str: create_assortment_select,
                    con.Shop_str: create_shop_select,
                    con.Worker_str: create_worker_select}
 
+update_creators = {con.Assortment_str: create_assortment_update,
+                   con.Commodity_str: create_commodity_update,
+                   con.Customer_str: create_customer_update,
+                   con.Order_str: create_order_update,
+                   con.Shop_str: create_shop_update,
+                   con.Worker_str: create_worker_update}
+
 def create_action_menu(table_name):
     if len(con.current_table) != 0:
         remove_unused_elements()
     con.current_table = table_name
     con.change_color(con.clicked_color_change[con.current_table])
-    con.create_button("Select", select_creators[con.current_table], 1, 3)
-    con.create_button("Insert", insert_creators[con.current_table], 2, 3)
-    con.create_button("Delete", create_delete_menu, 3, 3)
-    con.create_button("Update", create_assortment_update, 4, 3)
+    def select_callback():
+        remove_unused_elements()
+        select_creators[con.current_table]()
+    def insert_callback():
+        remove_unused_elements()
+        insert_creators[con.current_table]()
+    def delete_callback():
+        remove_unused_elements()
+        create_delete_menu()
+    def update_callback():
+        remove_unused_elements()
+        update_creators[con.current_table]()
+    con.create_button("Select", select_callback, 1, 3)
+    con.create_button("Insert", insert_callback, 2, 3)
+    con.create_button("Delete", delete_callback, 3, 3)
+    con.create_button("Update", update_callback, 4, 3)
 
 
 def assortment_table_use():
