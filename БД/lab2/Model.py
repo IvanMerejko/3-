@@ -4,25 +4,34 @@ import psycopg2
 class Model:
     conection = None
     cursor = None
-    insert_query = 'INSERT INTO \"{table}\" VALUES {values}'
+    insert_query = 'INSERT INTO \"{table}\"({columns_name}) VALUES {values}'
 
-    delete_query = 'Delete From \"{table}\" Where {field} = {value}'
+    delete_query = 'Delete From \"{table}\"'
     select_query = 'Select {fields} from \"{table}\"'
     update_query = 'Update \"{table}\" Set {fields} Where {primary_key}'
 
     def __init__(self):
         self.connection = psycopg2.connect(user="postgres",
-                                      password="bdfy45231",
-                                      port="1111",
-                                      database="test")
+                                           password="bdfy45231",
+                                           port="1111",
+                                           database="test")
         self.cursor = self.connection.cursor()
 
-    def insert_callback(self, current_table, values):
-        str_values = '{'
-        for value in values:
-            str_values += value
-        str_values += '}'
+    def insert_callback(self, current_table, values, columns_name):
+        str_values = "("
+        for i in range(0, len(values)):
+            try:
+                int(values[i])
+                str_values += values[i]
+            except:
+                str_values += '\'{0}\''.format(values[i])
+            str_values += ',' if (i != len(values) - 1) else ')'
+        str_columns = ''
+        for i in range(1, len(columns_name)):
+            str_columns += columns_name[i]
+            str_columns += ',' if i != (len(columns_name) - 1) else ''
         status, result = self.execute_query(self.insert_query.format(table=current_table,
+                                                                     columns_name=str_columns,
                                                                       values=str_values))
         return status, result
 
@@ -30,7 +39,11 @@ class Model:
         filters = []
         for field_name, field in fields:
             if len(str(field)) > 0:
-                filters.append(' {0} = {1} '.format(field_name, field))
+                try:
+                    int(field)
+                    filters.append(' {0} = {1} '.format(field_name, field))
+                except:
+                    filters.append(' {0} = \'{1}\' '.format(field_name, field))
         filters_count = len(filters)
         if filters_count > 0:
             query += ' WHERE'
@@ -47,22 +60,46 @@ class Model:
         query = self.create_filters_in_query(query, fields_value)
         status, result = self.execute_query(query.format(fields=fields, table=current_table))
         return status, result
-        # text_label['text'] = str(status) + '\n' + str(result)
 
     def update_callback(self, current_table, primary_key, new_fields):
-        primary_key_value, primary_key_name = primary_key
+        primary_key_name, primary_key_value = primary_key
         if len(str(primary_key_value)) == 0:
             return 'Please set value to primary key ({name})'.format(name=primary_key_name)
         primary_key_part = "{name} = {value}".format(name=primary_key_name, value=primary_key_value)
         fields_part = ''
-        for field_value, field_name in new_fields:
+        for field_name, field_value in new_fields:
             if len(str(field_value)) != 0:
-                fields_part += " {name} = {value} ".format(name=field_name, value=field_value)
+                try:
+                    int(field_value)
+                    fields_part += " {name} = {value} ".format(name=field_name, value=field_value)
+                except:
+                    fields_part += " {name} = \'{value}\' ".format(name=field_name, value=field_value)
+
         if len(fields_part) == 0:
             return 'Please set new value minimum for one field'.format(name=primary_key_name)
         status, result = self.execute_query(self.update_query.format(table=current_table,
                                                            fields=fields_part,
                                                            primary_key=primary_key_part), False)
+        return status, result
+
+    def select_from_all_tables(self, value1, value2):
+        query = 'Select \"shop\".address, \"worker\".name, \"customer\".name, com.name ' \
+                'From \"order\" ' \
+                'Left Join \"assortment\" on \"assortment\".assortment_id = \"order\".assortment_id '\
+                'Left Join \"customer\" On \"order\".customer_id = \"customer\".customer_id ' \
+                'Left Join \"worker\" On \"worker\".worker_id = \"customer\".worker_id ' \
+                'Left Join \"shop\" On \"shop\".shop_id = \"worker\".shop_id ' \
+                'INNER Join  (Select * from \"commodity\" ' \
+                                'WHERE price Between {value1} AND {value2}) com ' \
+                '                       ON com.commodity_id = \"assortment\".commodity_id ' \
+                'Order By \"customer\".name'.format(value1=value1, value2=value2)
+        status, result = self.execute_query(query)
+        return status, result
+
+    def delete_callback(self, current_table, fields):
+        query = self.delete_query
+        query = self.create_filters_in_query(query, fields)
+        status, result = self.execute_query(query.format(values=fields, table=current_table))
         return status, result
 
     def execute_query(self, query, is_need_to_fetch=True):

@@ -18,6 +18,8 @@ class View(object):
         print("2 - Insert")
         print("3 - Delete")
         print("4 - Update")
+        print("5 - Select from all tables")
+        print("6 - Generate random data")
 
     @staticmethod
     def print_assortment(parameters):
@@ -52,5 +54,41 @@ class View(object):
                 column = column[1:len(column) - 1]
                 customer_id, raiting, worker_id, name = column.split(", ")
                 print("\t\t", customer_id, "\t  |\t\t", raiting, "\t\t |\t", worker_id, "\t  |\t\t", name)
+        except:
+            print("")
+
+    @staticmethod
+    def print_order(parameters):
+        print("order_id | customer_id | assortment_id")
+        try:
+            result = parameters.split('\n')
+            for column in result:
+                column = column[1:len(column) - 1]
+                order_id, customer_id, assortment_id = column.split(", ")
+                print("\t\t", order_id, "\t  |\t\t", customer_id, "\t\t |\t", assortment_id)
+        except:
+            print("")
+
+    @staticmethod
+    def print_shop(parameters):
+        print("shop_id | monthly_profit | address")
+        try:
+            result = parameters.split('\n')
+            for column in result:
+                column = column[1:len(column) - 1]
+                shop_id, monthly_profit, address = column.split(", ")
+                print("\t\t", shop_id, "\t  |\t\t", monthly_profit, "\t\t |\t", address)
+        except:
+            print("")
+
+    @staticmethod
+    def print_worker(parameters):
+        print("worker_id | shop_id | name | surname | position")
+        try:
+            result = parameters.split('\n')
+            for column in result:
+                column = column[1:len(column) - 1]
+                worker_id, shop_id, name, surname, position = column.split(", ")
+                print("\t\t", worker_id, "\t  |\t\t", shop_id, "\t\t |\t", name, "\t\t |\t", surname, "\t\t |\t",position)
         except:
             print("")
