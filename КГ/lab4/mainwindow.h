@@ -13,11 +13,15 @@ class MainWindow;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
-    enum class Fractal
+    enum class  Algorithm
     {
+        KOCH_1,
+        KOCH_SNOWFLAKE,
+        LEAF, //лист
+        CARPET, //килим
+        NAPKIN,//серветка
         MANDELBORT_SET,
-        HILBERT_CURVE,
-        KOCH_SNOWFLAKE
+
     };
 
 public:
@@ -28,7 +32,14 @@ protected:
     void paintEvent(QPaintEvent* event) override;
 private:
     void mandelbrotSet();
+    void drawLeaf(int num);
+    void drawSnow(int iter, int x1, int y1, int x5, int y5);
     void simpleUpdate();
+
+    template<typename F>
+    void drawCarpet(double x1,double y1,double x2,double y2,int n, F&& func);
+    template<typename F>
+    void drawNapkin(int x1, int y1, int x2, int y2, int x3, int y3, int n, F&& func);
     void clear();
 private:
     Ui::MainWindow *ui;
@@ -36,7 +47,7 @@ private:
     QImage m_image;
     QGraphicsScene* m_scene;
     QGraphicsPixmapItem* m_pixmapItem;
-    Fractal m_fractal;
+    Algorithm m_algorithm;
 };
 
 #endif // MAINWINDOW_H
