@@ -18,7 +18,7 @@ class Controller:
                      5: Shop_str,
                      6: Worker_str}
 
-    tables_columns = {Assortment_str: ["assortment_id", "commodity_id", "order_id"],
+    tables_columns = {Assortment_str: ["assortment_id", "commodity_id", "shop_id"],
                       Commodity_str: ["commodity_id", "name", "price"],
                       Customer_str: ["customer_id", "name", "raiting", "worker_id"],
                       Order_str: ["order_id", "customer_id", "assortment_id"],
@@ -219,3 +219,26 @@ class Controller:
            return ''.join(random.choice(letters) for i in range(length))
         def random_int(min, max):
             return random.randint(min, max)
+        def random_order():
+            return [random_int(1, 1000), random_int(1, 1000)]
+        def random_worker():
+            return [random_int(1, 1000), random_word(25), random_word(25), random_word(25)]
+        def random_shop():
+            return [random_int(1000, 10000), random_word(25)]
+        def random_commodity():
+            return [random_word(25), random_int(1000, 10000)]
+        def random_customer():
+            return [random_word(25), random_int(1, 1000), random_int(1, 100)]
+        def random_assortment():
+            return [random_int(1, 1000), random_int(1, 1000)]
+
+        random_data_generator = {self.Assortment_str: random_assortment,
+                                 self.Worker_str: random_worker,
+                                 self.Shop_str: random_shop,
+                                 self.Order_str: random_order,
+                                 self.Commodity_str: random_commodity,
+                                 self.Customer_str: random_customer}
+        for i in range(1, 100):
+            self.model.insert_callback(self.current_table,
+                                       random_data_generator[self.current_table](),
+                                       self.tables_columns[self.current_table])
