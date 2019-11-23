@@ -62,7 +62,8 @@ class Controller:
                                   3: self.delete_action,
                                   4: self.update_action,
                                   5: self.big_tables_select,
-                                  6: self.generate_random_values}
+                                  6: self.generate_random_values,
+                                  7: self.special_select_by_word}
                 self.action = int(input())
                 action_numbers[self.action]()
             except Exception as e:
@@ -215,7 +216,7 @@ class Controller:
 
     def generate_random_values(self):
         def random_word(length):
-           letters = string.ascii_lowercase
+           letters = string.ascii_lowercase + " "
            return ''.join(random.choice(letters) for i in range(length))
         def random_int(min, max):
             return random.randint(min, max)
@@ -242,3 +243,30 @@ class Controller:
             self.model.insert_callback(self.current_table,
                                        random_data_generator[self.current_table](),
                                        self.tables_columns[self.current_table])
+
+    def special_select_by_word(self):
+        if self.current_table == self.Assortment_str or self.current_table == self.Order_str:
+            print("You can not select by word for this table")
+            return
+        print("Please write words by which you want to select from{table}. "
+              "( format must be fields_number=value|value "
+              "( | - for and, \\ - for or) etc ) ".format(table=self.current_table))
+        self.print_columns_titles(False)
+        seelct_parameters = []
+        while True:
+            string = input()
+            is_error_data = False
+            try:
+                result = string.split('=')
+                if len(result) != 2:
+                    print("Incorrect value")
+                    continue
+                field = self.tables_columns[self.current_table][int(result[0])]
+                values = result[1].replace('|', ' & ').replace('\\', ' | ')
+                status, result =  self.model.special_select_by_word(self.current_table, field, values)
+                print(status, result)
+            except Exception as e:
+                is_error_data = True
+                print("Incorrect value", e)
+            if not is_error_data:
+                break

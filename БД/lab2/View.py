@@ -4,7 +4,7 @@ class View(object):
 
     @staticmethod
     def tables_menu():
-        print("Select Table")
+        print("Select table")
         print("1 - Assortment")
         print("2 - Commodity")
         print("3 - Customer")
@@ -14,12 +14,14 @@ class View(object):
 
     @staticmethod
     def action_menu():
+        print("Select action")
         print("1 - Select")
         print("2 - Insert")
         print("3 - Delete")
         print("4 - Update")
         print("5 - Select from all tables")
         print("6 - Generate random data")
+        print("7 - Special select by word")
 
     @staticmethod
     def print_assortment(parameters):

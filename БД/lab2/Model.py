@@ -83,7 +83,7 @@ class Model:
         return status, result
 
     def select_from_all_tables(self, value1, value2):
-        query = 'Select \"shop\".address, \"worker\".name, \"customer\".name, com.name ' \
+        query = 'Select \"shop\".address, \"worker\".name, \"customer\".name, com.name, com.price ' \
                 'From \"order\" ' \
                 'Left Join \"assortment\" on \"assortment\".assortment_id = \"order\".assortment_id '\
                 'Left Join \"customer\" On \"order\".customer_id = \"customer\".customer_id ' \
@@ -100,6 +100,14 @@ class Model:
         query = self.delete_query
         query = self.create_filters_in_query(query, fields)
         status, result = self.execute_query(query.format(values=fields, table=current_table))
+        return status, result
+
+    def special_select_by_word(self, current_table, field, words):
+        query = 'SELECT * FROM \"{table}\" ' \
+                'WHERE to_tsvector(\"{field}\") @@ to_tsquery(\'{words}\')'.format(table=current_table,
+                                                                                    field=field,
+                                                                                    words=words)
+        status, result = self.execute_query(query)
         return status, result
 
     def execute_query(self, query, is_need_to_fetch=True):
